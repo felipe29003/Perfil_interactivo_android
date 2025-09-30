@@ -1,5 +1,6 @@
 package com.example.perfil_interactivo_android.ui.theme
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -63,7 +64,7 @@ fun Splash() {
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
 
-    ) {
+        ) {
         val imageModifier = Modifier
             .padding(top = 120.dp)
             .size(140.dp)
