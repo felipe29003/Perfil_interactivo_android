@@ -6,4 +6,10 @@ sealed class Actividades(val route: String) {
 
     object VideoScreen: Actividades(route = "VideoScreen")
 
+    object FotosScreen: Actividades(route = "FotosScreen")
+
+    object WebScreen: Actividades(route=" WebScreen")
+
+    object BotonesScreen: Actividades(route="BotonesScreen")
+
 }

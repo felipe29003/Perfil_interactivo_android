@@ -59,6 +59,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Popup
@@ -69,7 +70,9 @@ import com.example.perfil_interactivo_android.ui.theme.roboto
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
@@ -96,9 +99,14 @@ fun Header(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet() {
                 NavigationDrawerItem(
-                    label = { Text("Main") },
+                    label = { Text(
+                        text= "Perfil",
+                        fontSize = 30.sp,
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Black) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -108,13 +116,39 @@ fun Header(
                     },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = "Home"
+                            painter = painterResource(id = R.drawable.usuario_icono),
+                            contentDescription = "Icono_usuario",
+                            modifier = Modifier.size(35.dp)
                         )
                     }
                 )
                 NavigationDrawerItem(
-                    label = { Text("Video") },
+                    label = { Text("Fotos",
+                        fontSize = 30.sp,
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Black) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Actividades.FotosScreen.route)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icono_fotos),
+                            contentDescription = "Icono_fotos",
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Videos",
+                        fontSize = 30.sp,
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Black) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -124,11 +158,56 @@ fun Header(
                     },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Perfil"
+                            painter = painterResource(id = R.drawable.icono_reproductor),
+                            contentDescription = "Icono_reproductor",
+                            modifier = Modifier.size(35.dp)
                         )
                     }
                 )
+                NavigationDrawerItem(
+                    label = { Text("Web",
+                        fontSize = 30.sp,
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Black) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Actividades.WebScreen.route)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icono_web),
+                            contentDescription = "Icono_web",
+                            modifier = Modifier.size(35.dp)
+
+                        )
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Botones",
+                        fontSize = 30.sp,
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Black) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Actividades.BotonesScreen.route)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icono_boton),
+                            contentDescription = "Icono_boton",
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+                )
+
             }
         }
     ) {
@@ -141,7 +220,7 @@ fun Header(
                             fontSize = 32.sp,
                             fontFamily = roboto,
                             fontWeight = FontWeight.Normal,
-                            color = Color.White
+                            color = White
                         )
                     },
                     navigationIcon = {
@@ -170,6 +249,24 @@ fun Header(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun HeaderPreview() {
+    val navController = rememberNavController()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    Header(
+        navController = navController,
+        drawerState = drawerState,
+        scope = scope,
+        content = { paddingValues ->
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+            )
+        }
+    )
+}
 
 
 
