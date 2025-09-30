@@ -1,5 +1,6 @@
 package com.example.perfil_interactivo_android.ui.theme
 
+import android.app.Dialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,22 +24,28 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.example.perfil_interactivo_android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.window.Dialog
+
 
 @Composable
 fun Fotos(navController: NavHostController) {
@@ -50,6 +57,11 @@ fun Fotos(navController: NavHostController) {
         "https://cdn.pixabay.com/photo/2015/02/17/09/33/machu-pichu-639174_1280.jpg",
         "https://cdn.pixabay.com/photo/2019/10/22/18/31/rio-branco-4569465_1280.jpg"
     )
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var URL by remember { mutableStateOf("") }
+    var campo_ubicacion by remember { mutableStateOf("") }
+    var campo_descripcion by remember { mutableStateOf("") }
+
     Header(
         navController = navController,
         drawerState = drawerState,
@@ -113,12 +125,104 @@ fun Fotos(navController: NavHostController) {
                         .padding(bottom = 50.dp)
                         .align(Alignment.BottomEnd)
                         .size(80.dp)
-                        .clickable { }
+                        .clickable { mostrarDialogo = true }
                 )
             }
         }
+
+        if (mostrarDialogo) {
+            Dialog(
+                onDismissRequest = { mostrarDialogo = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(400.dp)
+                        .height(500.dp)
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "Adjuntar imagen",
+                        fontFamily = roboto,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 25.sp,
+                        color = Color.Black
+
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    OutlinedTextField(
+                        value = URL,
+                        onValueChange = { URL = it },
+                        label = { Text("URL de la imagen",
+                            fontFamily = roboto,
+                            fontWeight = FontWeight.Medium) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    OutlinedTextField(
+                        value = campo_ubicacion,
+                        onValueChange = { campo_ubicacion = it },
+                        label = { Text("Ubicación",fontFamily = roboto,
+                            fontWeight = FontWeight.Medium) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    OutlinedTextField(
+                        value = campo_descripcion,
+                        onValueChange = { campo_descripcion = it },
+                        label = { Text("Descripción",
+                            fontFamily = roboto,
+                            fontWeight = FontWeight.Medium
+                            ) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    TextButton(
+                        onClick = { mostrarDialogo = false },
+                        modifier = Modifier
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(Color(0xFF96EE8B), Color(0xFF58B469))
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 70.dp, vertical = 5.dp)
+                    ) {
+                        Text(
+                            "Enviar",
+                            fontFamily = roboto,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+        }
+
+
     }
 }
+
 
 
 @Preview(showBackground = true)
