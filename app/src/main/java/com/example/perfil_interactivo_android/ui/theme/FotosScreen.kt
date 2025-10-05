@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.perfil_interactivo_android.R
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,13 @@ import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.Dialog
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize.Fill.calculateMainAxisPageSize
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.draw.shadow
+import kotlin.math.absoluteValue
+import androidx.compose.ui.util.lerp
 
 
 @Composable
@@ -57,6 +65,7 @@ fun Fotos(navController: NavHostController) {
         "https://cdn.pixabay.com/photo/2015/02/17/09/33/machu-pichu-639174_1280.jpg",
         "https://cdn.pixabay.com/photo/2019/10/22/18/31/rio-branco-4569465_1280.jpg"
     )
+    val pagerState = rememberPagerState(pageCount = { imagelist.size })
     var mostrarDialogo by remember { mutableStateOf(false) }
     var URL by remember { mutableStateOf("") }
     var campo_ubicacion by remember { mutableStateOf("") }
@@ -100,21 +109,38 @@ fun Fotos(navController: NavHostController) {
 
                     Spacer(modifier = Modifier.height(70.dp))
 
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(imagelist) { imageUrl ->
-                            Image(
-                                painter = rememberAsyncImagePainter(imageUrl),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .width(250.dp)
-                                    .height(171.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                            )
-                        }
+                    HorizontalPager(
+                        state = pagerState,
+                        contentPadding = PaddingValues( horizontal = 50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) { page ->
+                        Image(
+                            painter = rememberAsyncImagePainter(imagelist[page]),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .width(250.dp)
+                                .height(171.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .graphicsLayer {
+                                    val pageOffset = (
+                                            (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                            ).absoluteValue
+                                    val scale = lerp(
+                                        start = 0.85f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
+                                    scaleX = scale
+                                    scaleY = scale
+                                    alpha = lerp(
+                                        start = 0.85f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
+                                }
+                        )
                     }
                 }
 
@@ -223,6 +249,11 @@ fun Fotos(navController: NavHostController) {
     }
 }
 
+
+@Composable
+fun Detalle(){
+
+}
 
 
 @Preview(showBackground = true)
