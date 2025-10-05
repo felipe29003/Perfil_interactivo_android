@@ -1,6 +1,6 @@
 package com.example.perfil_interactivo_android.ui.theme
 
-import android.app.Dialog
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,11 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.perfil_interactivo_android.data.Lugares
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +32,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
@@ -43,30 +43,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import coil.compose.rememberAsyncImagePainter
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize.Fill.calculateMainAxisPageSize
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.draw.shadow
 import kotlin.math.absoluteValue
 import androidx.compose.ui.util.lerp
+import coil.compose.AsyncImage
 
 
 @Composable
 fun Fotos(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    val imagelist = listOf(
-        "https://cdn.pixabay.com/photo/2021/05/29/03/00/beach-6292382_1280.jpg",
-        "https://cdn.pixabay.com/photo/2015/02/17/09/33/machu-pichu-639174_1280.jpg",
-        "https://cdn.pixabay.com/photo/2019/10/22/18/31/rio-branco-4569465_1280.jpg"
-    )
+    val imagelist = remember { mutableStateListOf<Lugares>() }
     val pagerState = rememberPagerState(pageCount = { imagelist.size })
     var mostrarDialogo by remember { mutableStateOf(false) }
+    var lugarelegido by remember { mutableStateOf<Lugares?>(null) }
+    var detallelugar by remember { mutableStateOf(false) }
     var URL by remember { mutableStateOf("") }
     var campo_ubicacion by remember { mutableStateOf("") }
     var campo_descripcion by remember { mutableStateOf("") }
@@ -97,7 +94,7 @@ fun Fotos(navController: NavHostController) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Text(
-                        text = "Galeria",
+                        text = "Galería",
                         fontFamily = roboto,
                         fontWeight = FontWeight.Black,
                         fontSize = 36.sp,
@@ -109,41 +106,43 @@ fun Fotos(navController: NavHostController) {
 
                     Spacer(modifier = Modifier.height(70.dp))
 
-                    HorizontalPager(
-                        state = pagerState,
-                        contentPadding = PaddingValues( horizontal = 50.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) { page ->
-                        Image(
-                            painter = rememberAsyncImagePainter(imagelist[page]),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .width(250.dp)
-                                .height(171.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                                .graphicsLayer {
-                                    val pageOffset = (
-                                            (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                                            ).absoluteValue
-                                    val scale = lerp(
-                                        start = 0.85f,
-                                        stop = 1f,
-                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                    )
-                                    scaleX = scale
-                                    scaleY = scale
-                                    alpha = lerp(
-                                        start = 0.85f,
-                                        stop = 1f,
-                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                    )
-                                }
-                        )
-                    }
+                        HorizontalPager(
+                            state = pagerState,
+                            contentPadding = PaddingValues(horizontal = 50.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { page ->
+                            AsyncImage(
+                                model = imagelist[page].URL,
+                                contentDescription = imagelist[page].descripcion,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .width(250.dp)
+                                    .height(171.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .clickable {
+                                        lugarelegido = imagelist[page]
+                                        detallelugar = true
+                                    }
+                                    .graphicsLayer {
+                                        val pageOffset = (
+                                                (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                                ).absoluteValue
+                                        val scale = lerp(
+                                            start = 0.85f,
+                                            stop = 1f,
+                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                        )
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = lerp(
+                                            start = 0.85f,
+                                            stop = 1f,
+                                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                        )
+                                    }
+                            )
+                        }
                 }
-
                 Image(
                     painter = painterResource(id = R.drawable.icono_agregar),
                     contentDescription = "Imagen clickeable",
@@ -158,7 +157,12 @@ fun Fotos(navController: NavHostController) {
 
         if (mostrarDialogo) {
             Dialog(
-                onDismissRequest = { mostrarDialogo = false }
+                onDismissRequest = {
+                    mostrarDialogo = false
+                    URL = ""
+                    campo_ubicacion = ""
+                    campo_descripcion = ""
+                }
             ) {
                 Column(
                     modifier = Modifier
@@ -178,7 +182,6 @@ fun Fotos(navController: NavHostController) {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 25.sp,
                         color = Color.Black
-
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     OutlinedTextField(
@@ -188,8 +191,7 @@ fun Fotos(navController: NavHostController) {
                             fontFamily = roboto,
                             fontWeight = FontWeight.Medium) },
                         singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -197,12 +199,9 @@ fun Fotos(navController: NavHostController) {
                     OutlinedTextField(
                         value = campo_ubicacion,
                         onValueChange = { campo_ubicacion = it },
-                        label = { Text("Ubicación",fontFamily = roboto,
-                            fontWeight = FontWeight.Medium) },
+                        label = { Text("Ubicación", fontFamily = roboto, fontWeight = FontWeight.Medium) },
                         singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
+                        modifier = Modifier.fillMaxWidth().height(100.dp)
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -210,20 +209,24 @@ fun Fotos(navController: NavHostController) {
                     OutlinedTextField(
                         value = campo_descripcion,
                         onValueChange = { campo_descripcion = it },
-                        label = { Text("Descripción",
-                            fontFamily = roboto,
-                            fontWeight = FontWeight.Medium
-                            ) },
+                        label = { Text("Descripción", fontFamily = roboto, fontWeight = FontWeight.Medium) },
                         singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
+                        modifier = Modifier.fillMaxWidth().height(100.dp)
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
 
                     TextButton(
-                        onClick = { mostrarDialogo = false },
+                        onClick = {
+                            if (URL.isNotBlank() && campo_ubicacion.isNotBlank() && campo_descripcion.isNotBlank()) {
+                                val lugarnuevo = Lugares(URL, campo_ubicacion, campo_descripcion)
+                                imagelist.add(lugarnuevo)
+                            }
+                            mostrarDialogo = false
+                            URL = ""
+                            campo_ubicacion = ""
+                            campo_descripcion = ""
+                        },
                         modifier = Modifier
                             .background(
                                 brush = Brush.horizontalGradient(
@@ -245,16 +248,124 @@ fun Fotos(navController: NavHostController) {
             }
         }
 
+        if (detallelugar && lugarelegido != null) {
+            Dialog(
+                onDismissRequest = {
+                    detallelugar = false
+                    lugarelegido = null
+                }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(500.dp)
+                        .height(500.dp)
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(30.dp)
+                        ),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(230.dp)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                            clip = true
+                        ))
+                    {
+                        AsyncImage(
+                            model = lugarelegido!!.URL,
+                            contentDescription = lugarelegido!!.descripcion,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                        )
+                    }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    )
+                    {
+                        Column(verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize() )
+                        {
+                            Text(
+                                text = "Ubicación:",
+                                fontFamily = roboto,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color.Black,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start
+                            )
+                            Spacer(modifier = Modifier.height(15.dp))
+
+                            LazyColumn(modifier = Modifier
+                                .fillMaxWidth()
+                                .height(25.dp),
+                            ) {
+                                item {
+                                    Text(
+                                        text = lugarelegido!!.ubicacion,
+                                        fontFamily = roboto,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 14.sp,
+                                        color = Color.Black,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 8.dp),
+                                        textAlign = TextAlign.Start
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            Text(
+                                text = "Descripción:",
+                                fontFamily = roboto,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color.Black,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start
+                            )
+
+                            Spacer(modifier = Modifier.height(15.dp))
+
+                            LazyColumn(modifier = Modifier
+                                .fillMaxWidth()
+                                .height(70.dp),
+                            ) {
+                                item{
+                                    Text(
+                                        text = lugarelegido!!.descripcion,
+                                        fontFamily = roboto,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 14.sp,
+                                        color = Color.Black,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 8.dp),
+                                        textAlign = TextAlign.Start
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
-
-@Composable
-fun Detalle(){
-
-}
-
 
 @Preview(showBackground = true)
 @Composable
