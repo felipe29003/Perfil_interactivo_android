@@ -1,5 +1,8 @@
 package com.example.perfil_interactivo_android.ui.theme
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +43,26 @@ fun Botones(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     var SwitchStatus by remember { mutableStateOf(false) }
 
+    val FondoVista by animateColorAsState(
+        targetValue = if (SwitchStatus) Color(0xFF0D1B2A) else Color(0xFF00325F),
+        animationSpec = tween (500, easing= LinearEasing)
+    )
+
+    val FondoContenedor by animateColorAsState(
+        targetValue = if (SwitchStatus) Color(0xFF0B0E16) else Color(0xFFFFFFFF),
+        animationSpec = tween (500, easing= LinearEasing)
+    )
+
+    val colorTitulo by animateColorAsState(
+        targetValue = if (SwitchStatus) Color.White else Color.Black,
+        animationSpec = tween (500, easing= LinearEasing)
+    )
+
+    val colorLabel by animateColorAsState(
+        targetValue = if (SwitchStatus) Color(0xFFB0B0B0) else Color(0xFF717275),
+        animationSpec = tween (500, easing= LinearEasing)
+    )
+
     Header(
         navController = navController,
         drawerState = drawerState,
@@ -48,7 +71,7 @@ fun Botones(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF00325F))
+                .background(FondoVista)
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
@@ -60,7 +83,7 @@ fun Botones(navController: NavHostController) {
                     .clip(RoundedCornerShape(30.dp))
                     .height(620.dp)
                     .width(350.dp)
-                    .background(Color.White)
+                    .background(FondoContenedor)
                     .padding(30.dp)
             ) {
                 Column(
@@ -74,6 +97,7 @@ fun Botones(navController: NavHostController) {
                         fontSize = 32.sp,
                         modifier = Modifier.padding(top = 30.dp, end = 3.dp),
                         textAlign = TextAlign.Center,
+                        color= colorTitulo
                     )
 
                     Spacer(modifier = Modifier.height(150.dp))
@@ -86,10 +110,11 @@ fun Botones(navController: NavHostController) {
                             fontFamily = roboto,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = Color(0xFF717275),
+                            color = colorLabel,
                             modifier = Modifier
                                 .padding(bottom = 30.dp),
                             textAlign = TextAlign.Center,
+
                         )
                         Switch(
                             checked = SwitchStatus,
