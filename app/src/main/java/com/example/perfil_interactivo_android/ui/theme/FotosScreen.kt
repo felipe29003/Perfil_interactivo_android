@@ -115,6 +115,7 @@ fun Fotos(navController: NavHostController) {
                                 model = imagelist[page].URL,
                                 contentDescription = imagelist[page].descripcion,
                                 contentScale = ContentScale.Crop,
+                                error = painterResource(id = R.drawable.imagen_no_valida),
                                 modifier = Modifier
                                     .width(250.dp)
                                     .height(171.dp)

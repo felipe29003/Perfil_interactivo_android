@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
+import com.example.perfil_interactivo_android.data.Webdata
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,8 +42,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun Web(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var URLWeb by remember { mutableStateOf("https://es.wikipedia.org/wiki/Wikipedia:Portada") }
+    var URLWeb by remember { mutableStateOf(Webdata("")) }
     var estadobar by remember { mutableStateOf(false) }
+    var webcargada by remember { mutableStateOf(false) }
 
     Header(
         navController = navController,
@@ -58,9 +60,13 @@ fun Web(navController: NavHostController) {
             verticalArrangement = Arrangement.Top
         ) {
             SearchBar(
-                query = URLWeb,
-                onQueryChange = { URLWeb = it },
+                query = URLWeb.URLweb,
+                onQueryChange = { newUrl ->
+                    URLWeb = URLWeb.copy(URLweb = newUrl) },
                 onSearch = {
+                    if (URLWeb.URLweb.isNotBlank() && URLWeb.URLweb.startsWith("http")) {
+                        webcargada= true
+                    }
                     estadobar = false
                 },
                 active = estadobar,
@@ -81,15 +87,23 @@ fun Web(navController: NavHostController) {
                     )
                 },
                 trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icono_borrar),
-                        contentDescription = "Borrar",
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                URLWeb = ""
-                            }
-                    )
+                    if(estadobar){
+                        Icon(
+                            painter = painterResource(id = R.drawable.icono_borrar),
+                            contentDescription = "iconoborrar",
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    if(URLWeb.URLweb.isNotEmpty()) {
+                                        URLWeb = URLWeb.copy(URLweb = "")
+                                    }
+                                    else{
+                                        estadobar=false
+                                    }
+
+                                }
+                        )
+                    }
                 },
 
                 modifier = Modifier
@@ -104,16 +118,17 @@ fun Web(navController: NavHostController) {
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                AndroidView(factory ={
-                    WebView(it).apply {
-                        webViewClient = WebViewClient()
-                        settings.javaScriptEnabled = true
-                        settings.builtInZoomControls = true
-                        settings.displayZoomControls = false
-                        loadUrl(URLWeb)
-                    }
-                } )
-
+                if (webcargada && URLWeb.URLweb.isNotBlank()){
+                    AndroidView(factory ={
+                        WebView(it).apply {
+                            webViewClient = WebViewClient()
+                            settings.javaScriptEnabled = true
+                            settings.builtInZoomControls = true
+                            settings.displayZoomControls = false
+                            loadUrl(URLWeb.URLweb)
+                        }
+                    } )
+                }
             }
         }
     }
