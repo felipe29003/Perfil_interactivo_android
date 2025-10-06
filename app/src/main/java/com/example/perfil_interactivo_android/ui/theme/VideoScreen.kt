@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.example.perfil_interactivo_android.data.Videosdata
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.graphics.graphicsLayer
@@ -51,10 +52,12 @@ import androidx.media3.ui.PlayerView
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
+import com.example.perfil_interactivo_android.data.Lugares
 
 
 @Composable
@@ -62,11 +65,7 @@ fun Video(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var mostrarDialogoVideo by remember { mutableStateOf(false) }
-    val videolist = listOf(
-        "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-        "https://media.istockphoto.com/id/1908736020/video/dubai-marina.mp4?s=mp4-640x640-is&k=20&c=q4lZOxparzH9sxeH-TJdGNdxuPs4k4BwQPUNd98jyn0=",
-        "https://2050today.org/wp-content/uploads/2020/07/Video-Placeholder.mp4"
-    )
+    val videolist = remember { mutableStateListOf<Videosdata>() }
     var URL_Video by remember { mutableStateOf("") }
     val pagerState = rememberPagerState(pageCount = { videolist.size })
 
@@ -116,7 +115,7 @@ fun Video(navController: NavHostController) {
 
                     ) { page ->
                         VideoPlayerDemo(
-                            videoUrl = videolist[page],
+                            videoUrl = videolist[page].URLVideos,
                             isSelected = page == pagerState.currentPage,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -198,7 +197,12 @@ fun Video(navController: NavHostController) {
 
                 TextButton(
                     onClick = {
+                        if (URL_Video.isNotBlank()) {
+                            val videonuevo = Videosdata(URL_Video)
+                            videolist.add(videonuevo)
+                        }
                         mostrarDialogoVideo = false
+                        URL_Video = ""
                     },
                     modifier = Modifier
                         .background(
